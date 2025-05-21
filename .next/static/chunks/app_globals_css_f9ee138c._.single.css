@@ -1042,10 +1042,6 @@
     margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
   }
 
-  .rounded {
-    border-radius: .25rem;
-  }
-
   .rounded-full {
     border-radius: 3.40282e38px;
   }
