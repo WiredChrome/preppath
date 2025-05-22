@@ -1,4 +1,9 @@
 {
   "/(root)/page": "app/(root)/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/sign-out/route": "app/api/sign-out/route.js",
+  "/api/vapi/generate/route": "app/api/vapi/generate/route.js",
+  "/auth/reg/page": "app/auth/reg/page.js",
+  "/auth/sign-in/page": "app/auth/sign-in/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js"
 }

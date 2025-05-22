@@ -4,6 +4,8 @@ import { db, auth} from "@/Firebase/admin";
 import { Auth } from "firebase-admin/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { cookies } from "next/headers";
+import { redirect } from 'next/navigation';
+
 
 export async function signUp(params: SignUpParams) {
 	const { uid, name, email } = params;
@@ -57,6 +59,11 @@ export async function signIn(params: SignInParams) {
 
         await setSessionCookie(idToken);
 
+        return {
+            success: true,
+            message: 'Signed in successfully',
+        };
+
     } catch (e) {
         console.log(e);
         return {
@@ -67,12 +74,11 @@ export async function signIn(params: SignInParams) {
 }
 
 export async function setSessionCookie(idToken: string) {
-    const cookieStore = await cookies();
     const sessionCookie = await auth.createSessionCookie(idToken, {
         expiresIn: 60 * 60 * 24 * 5 * 1000, // 5 days
     });
 
-    cookieStore.set('session', sessionCookie, {
+    cookies().set('session', sessionCookie, {
         maxAge: 60 * 60 * 24 * 5, // 5 days
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -82,31 +88,36 @@ export async function setSessionCookie(idToken: string) {
 }
 
 export async function getCurrentUser(): Promise<User | null> {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('session')?.value;
-
+    const sessionCookie = cookies().get('session')?.value;
     if (!sessionCookie) return null;
 
     try {
         const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
-        const userRecord = await db.collection('users').doc(decodedClaims.uid).get();
-        if (!userRecord.exists) return null;
+        const authUser = await auth.getUser(decodedClaims.uid);
+        const userDoc = await db.collection('users').doc(authUser.uid).get();
 
         return {
-            ...userRecord.data(),
-            id: userRecord.id,
-
+            uid: authUser.uid,
+            email: authUser.email,
+            name: authUser.displayName || userDoc.data()?.name,
+            photoURL: authUser.photoURL,
+            createdAt: userDoc.data()?.createdAt,
         } as User;
-
-        
     } catch (e) {
         console.error('Error verifying session cookie:', e);
         return null;
     }
 }
 
-export async function isAuthenticated() {
-    const user = await getCurrentUser();
+export async function clearSessionCookie() {
+  cookies().delete('session');
+}
 
-    return !!user; 
+export async function signOut() {
+  await clearSessionCookie();
+  redirect('/auth/sign-in');
+}
+
+export async function isAuthenticated() {
+    return await getCurrentUser(); // returns null or User object
 }

@@ -1,5 +1,5 @@
 // Edited by Rahul
-
+'use client'
 import {VapiChat} from '../../components/VapiChat'
 
 

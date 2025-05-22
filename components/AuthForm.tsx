@@ -20,8 +20,6 @@ import { signIn } from "@/lib/actions/auth.action"
 
 
 
-
-
 const authFormSchema = (type: FormType) => {
   return z.object({
   name: type === 'sign-up' ? z.string().min(3) : z.string().optional(),
@@ -65,7 +63,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         }
 
         toast.success('Account created successfully');
-        router.push('/sign-in');
+        router.push('/auth/sign-in');
       } else {
         const { email, password } = values;
 
@@ -165,7 +163,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
             <p className="text-center">
               {isSignIn ? 'New to PrepPath?' : 'Already have an account?'}
               
-              <Link href={!isSignIn ? '/sign-in' : '/reg'} className="font-bold text-user-primary ml-1">
+              <Link href={!isSignIn ? '/auth/sign-in' : '/auth/reg'} className="font-bold text-user-primary ml-1">
                 {!isSignIn ? "Sign in" : "Register an Account"}
               </Link>
 
